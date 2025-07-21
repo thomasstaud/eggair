@@ -16,7 +16,9 @@ players = {}
 
 
 async def process(message):
-    response = gemini.generate_content(message)
+    print(message)
+    print(message.content)
+    response = gemini.generate_content(message.content)
     await message.channel.send(response)
             
 
