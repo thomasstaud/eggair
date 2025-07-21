@@ -1,16 +1,17 @@
-import main
+import discord
 from discord.ext import commands
 import os
 from dotenv import load_dotenv
 import gemini
+from keep_alive import keep_alive
 
 
 load_dotenv()
 
-client = main.Client(intents=main.Intents.all())
+client = discord.Client(intents=discord.Intents.all())
 my_token = os.getenv('TOKEN')
 
-client = commands.Bot(command_prefix='.', intents=main.Intents.default())
+client = commands.Bot(command_prefix='.', intents=discord.Intents.default())
 players = {}
 
 
