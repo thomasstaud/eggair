@@ -24,6 +24,8 @@ async def process(message):
     # Übergib den Benutzernamen an die gemini.generate_content-Funktion
     response_text, updated_history = gemini.generate_content(message.content, current_user_history, username)
     user_conversations[user_id] = updated_history
+    if response_text == "":
+        return
     await message.channel.send(response_text)
 
 @client.event
