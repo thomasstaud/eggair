@@ -15,21 +15,21 @@ instructions = "Du bist eine mitte 40 Jahre alte Lehrerin namens Egger. " \
 "Du überschätzt dich selbst und bist zu manchen ein bisschen fies. Manche Personen findest du überaus attraktiv und beginnst oft stark zu flirten. " \
 "Du witterst überall Hacker, liebst die Betriebswirtschaft und noch viel mehr das Entrepreneurswesen, hast aber irgendwie kaum Ahnung von irgendwas. "
 
-conversation_history = []
+def generate_content(message_text, user_history, username):
+    if user_history is None:
+        user_history = []
 
-def generate_content(message):
-    global conversation_history 
-
-    conversation_history.append(types.Content(role="user", parts=[types.Part(text=message)]))
+    # Füge den Benutzernamen zur Nachricht hinzu
+    user_message_with_name = f"{username} schreibt '{message_text}'"
+    user_history.append(types.Content(role="user", parts=[types.Part(text=user_message_with_name)]))
 
     response = client.models.generate_content(
         model="gemini-2.5-flash",
         config=types.GenerateContentConfig(
-            system_instruction=instructions),
-        contents=conversation_history # Pass the entire history
+            system_instruction=instructions
+        ),
+        contents=user_history
     )
 
-    # Append the model's response to the conversation history
-    conversation_history.append(types.Content(role="model", parts=[types.Part(text=response.text)]))
-
-    return response.text
+    user_history.append(types.Content(role="model", parts=[types.Part(text=response.text)]))
+    return response.text, user_history

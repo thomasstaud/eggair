@@ -8,29 +8,27 @@ from keep_alive import keep_alive
 
 load_dotenv()
 
-client = discord.Client(intents=discord.Intents.all())
 my_token = os.getenv('TOKEN')
+intents = discord.Intents.default()
+intents.message_content = True 
+client = commands.Bot(command_prefix='.', intents=intents)
 
-client = commands.Bot(command_prefix='.', intents=discord.Intents.default())
-players = {}
-
+user_conversations = {}
 
 async def process(message):
-    print(message)
-    print(message.content)
-    response = gemini.generate_content(message.content)
-    await message.channel.send(response)
-            
-
+    
+    user_id = message.author.id
+    username = message.author.display_name # Oder message.author.name für den Nutzernamen ohne Spitznamen
+    current_user_history = user_conversations.get(user_id)
+    
+    # Übergib den Benutzernamen an die gemini.generate_content-Funktion
+    response_text, updated_history = gemini.generate_content(message.content, current_user_history, username)
+    user_conversations[user_id] = updated_history
+    await message.channel.send(response_text)
 
 @client.event
 async def on_ready():
-    #await client.change_presence(status=discord.Status.idle,
-    #                             activity=discord.Streaming(
-    #                                 name='GeoGuessr',
-    #                                 url='https://www.geoguessr.com/'))
-    print('Ich bin {0.user}'.format(client))
-
+    print(f'Ich bin {client.user} und bereit!')
 
 @client.event
 async def on_message(message):
@@ -38,12 +36,13 @@ async def on_message(message):
         return
     if message.author.bot:
         return
-    else:
-        await process(message)
+
+    await client.process_commands(message)
+    await process(message)
 
 keep_alive()
 
 try:
     client.run(my_token)
-except:
-    os.system("kill 1")
+except Exception as e:
+    print(f"Error starting bot: {e}")
